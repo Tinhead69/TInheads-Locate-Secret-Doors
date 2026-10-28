@@ -2,7 +2,7 @@
   "id": "locate-secret-doors",
   "title": "Locate Secret Doors (TEST)",
   "description": "TEST BUILD: Automatically search for secret doors within a configurable range, using an item action or token movement. Results are whispered privately to the GM. Foundry v13/v14 compatibility is awaiting in-world testing.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "url": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors",
   "manifest": "https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json",
   "download": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/archive/refs/heads/main.zip",
