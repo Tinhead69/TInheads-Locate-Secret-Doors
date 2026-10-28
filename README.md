@@ -1,6 +1,6 @@
 # Locate Secret Doors (TEST)
 
-This is a test build for in-world validation. Foundry displays it as **Locate Secret Doors (TEST)**. The package version is `0.1.1`. Test installations download the current `main` branch; a GitHub release is not required. It has not been verified in a running Foundry instance.
+This is a test build for in-world validation. Foundry displays it as **Locate Secret Doors (TEST)**. The package version is `0.1.2`. Test installations download the current `main` branch; a GitHub release is not required. It has not been verified in a running Foundry instance.
 
 Find secret doors within a configurable range using an action on a D&D 5e weapon or item. Searches succeed automatically within range; there is no Perception check. Results go privately to the GM, who decides whether to reveal each door.
 
@@ -19,9 +19,9 @@ https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/mo
 
 For manual installation:
 
-1. Extract `dist/locate-secret-doors-0.1.1-test.1.zip` into `Data/modules/locate-secret-doors` in Foundry's user-data directory. The extracted `module.json` must be directly inside that folder.
+1. Extract `dist/locate-secret-doors-0.1.2-test.zip` into `Data/modules/locate-secret-doors` in Foundry's user-data directory. The extracted `module.json` must be directly inside that folder.
 2. Restart Foundry and enable **Locate Secret Doors (TEST)** in the world's module settings.
-3. As GM, open a weapon or item sheet. In the **Locate Secret Doors** panel, choose a range and mode, then click **Add Locate Secret Doors action**.
+3. As GM, open a weapon or item sheet and select its **Activities** tab. In the **Locate Secret Doors** panel inside that tab, choose a range and mode, then click **Add Locate Secret Doors action**. The new utility activity appears in the activity list alongside existing attacks.
 4. Give the item to a character and place the character's token on a scene. Configuration also works on an item already owned by a character.
 5. In Manual mode, use its **Locate Secret Doors** activity. In Automatic mode, move the token near a secret door.
 
@@ -61,6 +61,8 @@ Run automated tests with Node.js 20 or later:
 ```sh
 node --test
 ```
+
+The optional real-browser sheet check is `node tools/verify-sheet-ui.mjs`. It requires Playwright and a Chromium browser. `PLAYWRIGHT_MODULE_PATH` and `BROWSER_EXECUTABLE` can select an existing installation. This exercises an Activities-tab fixture, including the V2 render hook, saved settings, duplicate suppression, GM-only controls, and play-mode interactivity.
 
 Before release, check in both target environments:
 
