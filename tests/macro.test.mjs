@@ -111,16 +111,38 @@ test("module initialization adds only a macro API and private message handler", 
   assert.deepEqual([...hooks.keys()], ["createChatMessage"]);
 });
 
-test("the supplied Midi-QOL macro uses its workflow token and a 30-unit radius", async () => {
-  const { token } = setup();
-  const calls = [];
-  game.modules.get(MODULE_ID).api = { scan: async (...args) => calls.push(args) };
+test("standalone macro scans and pings for a GM without referencing the module", async () => {
+  const { token, messages, pings } = setup();
+  token.parent.walls = [
+    ...token.parent.walls,
+    { id: "far", door: 2, c: [1000, 0, 1000, 100] },
+    { id: "normal", door: 1, c: [100, 0, 100, 100] }
+  ];
+  game.modules = undefined;
   const command = await readFile(new URL("../macros/Locate Secret Doors.js", import.meta.url), "utf8");
   const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
   const macro = new AsyncFunction("args", "token", command);
   await macro([{ tokenUuid: token.uuid }], null);
-  assert.deepEqual(calls, [[token.uuid, 30]]);
-  calls.length = 0;
+  assert.equal(messages.length, 1);
+  assert.match(messages[0].content, /<strong>1<\/strong>/);
+  assert.deepEqual(pings.map(ping => ping.point), [{ x: 150, y: 50 }]);
+  assert.doesNotMatch(command, /game\.modules|locate-secret-doors/);
+  pings.length = 0;
   await macro([], null);
-  assert.deepEqual(calls, [[token.uuid, 30]]);
+  assert.equal(pings.length, 1);
+});
+
+test("standalone player macro sends results through Midi-QOL as GM and never broadcasts pings", async () => {
+  const { token, player, pings, messages } = setup();
+  game.user = player;
+  game.modules = undefined;
+  const socketCalls = [];
+  globalThis.MidiQOL = { socket: () => ({ executeAsGM: async (...args) => socketCalls.push(args) }) };
+  const command = await readFile(new URL("../macros/Locate Secret Doors.js", import.meta.url), "utf8");
+  const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+  await new AsyncFunction("args", "token", command)([{ tokenUuid: token.uuid }], null);
+  assert.equal(messages.length, 0);
+  assert.equal(pings.length, 0);
+  assert.equal(socketCalls[0][0], "createChatMessage");
+  assert.deepEqual(socketCalls[0][1].chatData.whisper, ["gm", "otherGM"]);
 });

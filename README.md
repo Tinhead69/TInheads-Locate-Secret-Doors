@@ -1,41 +1,19 @@
-# Locate Secret Doors (TEST)
+# Locate Secret Doors — standalone Midi-QOL macro
 
-A simple Midi-QOL on-use macro: use the item, scan within 30 scene units, and ping nearby secret doors privately for the GM. Only attach it to items that grant this ability.
+Paste [macros/Locate Secret Doors.js](macros/Locate%20Secret%20Doors.js) into a Midi-QOL on-use macro and run it once at **postActiveEffects**. Alternatively import the supplied JSON as a Script world macro and select it in Midi-QOL's on-use configuration.
 
-## Set up an item
+**The macro does not call or require the Locate Secret Doors module.** It performs the wall scan itself. Attach it only to items or activities which grant the ability. Change `RANGE = 30` for another radius in scene units, usually feet.
 
-1. Update the module to **0.1.3** and reload the world.
-2. Create a **Script** world macro named **Locate Secret Doors**. Paste the contents of [macros/Locate Secret Doors.js](macros/Locate%20Secret%20Doors.js), or import [macros/Locate Secret Doors.json](macros/Locate%20Secret%20Doors.json). Give the relevant players permission to use it.
-3. Open the item's **Midi-QOL Macros / On Use Macros** configuration. In current Midi-QOL versions this is available through the item's header controls.
-4. Select the world macro **Locate Secret Doors** and run it at **postActiveEffects**, once per use. Select an activity-specific macro slot if you want only one activity to trigger the search.
-5. Use the item from the character sheet with its token on the scene.
+## Private results and pings
 
-Change `const RANGE = 30` in the macro for a different radius. Range uses the scene's units, usually feet. No custom activity type, detection panel, per-item flag, or movement automation is required. A macro attached at item level will run whenever that item's workflow reaches the selected pass; use an activity-specific slot to keep searches separate from attacks.
+- When run by a player, it asks Midi-QOL to create the result whisper as a GM, so only GMs see the secret locations. It does not broadcast pings.
+- When run by a GM viewing the token's scene, it also draws local pings on that GM's map.
+- A standalone macro executing only on a player's client cannot draw a private ping on a GM's canvas without GM-side execution or a listener. This macro keeps the findings private rather than using a public ping.
 
-## What happens
+It measures straight-line, two-dimensional distance from the using token's centre to each secret-door wall segment. Normal doors are ignored. Walls, lighting, and elevation do not block the search. Doors are never changed or revealed. An active GM is required.
 
-The player submits a search request. The GM's client checks secret-door wall segments within range of the token centre. Only GMs receive the result and see local pings; doors remain secret. The GM decides whether to reveal them using Foundry's normal controls.
+The earlier module helper remains in the repository for reference, but it is unnecessary for this standalone macro and can be disabled. No special activity type, detection panel, item flags, or module update is needed to use the macro.
 
-Pings appear for GMs viewing the searching token's scene. GMs on another scene still receive a private summary with the scene name and door positions. No nearby doors means a private “no secret doors in range” message and no ping.
+Run `node --test` for the standalone-macro and helper regression checks. Tests use Foundry-shaped doubles; live Foundry v13/v14 and Midi-QOL testing is still required.
 
-Distance is measured in two dimensions to the nearest point on each secret-door segment. Intervening walls, lighting, and elevation do not block this proximity search. An active GM is required.
-
-This replaces the earlier test build's sheet panels and automatic movement checks. Any utility activity already created in the world remains yours to use or delete; attach the Midi-QOL macro to it if desired.
-
-## Install
-
-Use this manifest URL in Foundry:
-
-```text
-https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json
-```
-
-The test download uses GitHub's ZIP of `main`. No release asset is required. For manual installation, extract `dist/locate-secret-doors-0.1.3-test.zip` into `Data/modules/locate-secret-doors` so `module.json` is directly inside that folder.
-
-Targets: Foundry v14 / D&D 5e 6.0.6, with Foundry v13 / D&D 5e 5.x backward compatibility. This is a test build; live validation in both environments is still required.
-
-## Development
-
-Run `node --test`. Tests cover range geometry, token ownership, private GM handling, local-only pings, and the Midi-QOL macro entry point. Future test updates should increase the numeric version in both manifests before publishing the matching source to `main`.
-
-References: [Midi-QOL macro documentation](https://gitlab.com/tposney/midi-qol/-/blob/v13/MACROS.md), [Foundry local ping API](https://foundryvtt.com/api/v14/classes/foundry.canvas.layers.ControlsLayer.html#drawping).
+References: [Midi-QOL on-use macros](https://gitlab.com/tposney/midi-qol/-/blob/v13/MACROS.md), [Midi-QOL GM socket handlers](https://gitlab.com/tposney/midi-qol/-/blob/v13/src/module/GMAction.ts), [Foundry local ping API](https://foundryvtt.com/api/v14/classes/foundry.canvas.layers.ControlsLayer.html#drawping).
