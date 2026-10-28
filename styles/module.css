@@ -5,6 +5,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  grid-column: 1 / -1;
+  min-width: 0;
 }
 .locate-secret-doors-config label {
   display: flex;
