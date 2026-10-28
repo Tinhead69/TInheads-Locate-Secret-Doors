@@ -5,9 +5,13 @@
   "version": "0.1.1",
   "url": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors",
   "manifest": "https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json",
-  "download": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/releases/download/v0.1.1-test.1/locate-secret-doors-0.1.1-test.1.zip",
-  "esmodules": ["scripts/module.mjs"],
-  "styles": ["styles/module.css"],
+  "download": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/archive/refs/heads/main.zip",
+  "esmodules": [
+    "scripts/module.mjs"
+  ],
+  "styles": [
+    "styles/module.css"
+  ],
   "compatibility": {
     "minimum": "13",
     "maximum": "14"
