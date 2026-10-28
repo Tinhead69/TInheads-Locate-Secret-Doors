@@ -1,5 +1,6 @@
 import { MODULE_ID, validateRange } from "./constants.mjs";
 import { requestSearch, resolveToken } from "./search.mjs";
+import { registerDocumentSheetRender } from "./sheets.mjs";
 
 export async function configureItem(item, { range = game.settings.get(MODULE_ID, "range"), mode = "manual" } = {}) {
   if (!game.user.isGM) throw new Error("Only the GM can configure secret-door detection.");
@@ -57,29 +58,32 @@ export function registerItemActivities() {
 }
 
 export function registerItemConfiguration() {
-  function renderConfiguration(sheet, html) {
+  function renderConfiguration(sheet, root, item) {
     if (!game.user.isGM) return;
-    const item = sheet.item ?? sheet.document;
-    if (item?.documentName !== "Item" || !item.system.activities) return;
-    const root = html instanceof HTMLElement ? html : html?.[0];
-    if (!root || root.querySelector(".locate-secret-doors-config")) return;
+    if (!item.system.activities) return;
+    const selector = '.tab[data-tab="activities"], .tab.activities';
+    const activitiesTab = root.matches(selector) ? root : root.querySelector(selector);
+    if (!activitiesTab || activitiesTab.querySelector(".locate-secret-doors-config")) return;
     const config = item.getFlag(MODULE_ID, "search");
     const section = document.createElement("fieldset");
     section.className = "locate-secret-doors-config";
     section.innerHTML = `<legend>Locate Secret Doors</legend>
-      <label>Range (scene units) <input type="number" min="0" step="any" data-lsd-range></label>
-      <label>Detection mode <select data-lsd-mode>
+      <label>Range (scene units) <input type="number" min="0" step="any" class="always-interactive" data-lsd-range></label>
+      <label>Detection mode <select class="always-interactive" data-lsd-mode>
         <option value="manual">Manual — use item action</option>
         <option value="automatic">Automatic — when token moves</option>
       </select></label>
-      <button type="button" data-lsd-save></button>
-      <p>Results go privately to the GM. Automatic mode is active while the item is carried.</p>`;
+      <button type="button" class="always-interactive" data-lsd-save></button>
+      <p>Creates a separate activity below, preserving attacks. Results go privately to the GM.
+      Automatic mode is active while the item is carried.</p>`;
     const rangeInput = section.querySelector("[data-lsd-range]");
     const modeInput = section.querySelector("[data-lsd-mode]");
     const button = section.querySelector("[data-lsd-save]");
     rangeInput.value = config?.range ?? game.settings.get(MODULE_ID, "range");
     modeInput.value = config?.mode ?? "manual";
     button.textContent = config ? "Save detection settings" : "Add Locate Secret Doors action";
+    // These unnamed controls save through our own button, not the item's form.
+    section.addEventListener("change", event => event.stopPropagation());
     button.addEventListener("click", async event => {
       event.preventDefault();
       event.stopPropagation();
@@ -88,6 +92,7 @@ export function registerItemConfiguration() {
       try {
         if (!rangeInput.value.trim()) throw new Error("Enter a search range.");
         await configureItem(item, { range: Number(rangeInput.value), mode: modeInput.value });
+        button.textContent = "Save detection settings";
         ui.notifications.info("Locate Secret Doors settings saved.");
       } catch (error) {
         ui.notifications.error(error.message);
@@ -95,8 +100,9 @@ export function registerItemConfiguration() {
         button.disabled = false;
       }
     });
-    (root.querySelector(".window-content") ?? root).prepend(section);
+    // The modern D&D 5e sheet uses a multi-column layout. Add controls inside
+    // its Activities tab, rather than adding a new top-level layout column.
+    activitiesTab.prepend(section);
   }
-  Hooks.on("renderItemSheetV2", renderConfiguration);
-  Hooks.on("renderItemSheet", renderConfiguration);
+  registerDocumentSheetRender("Item", renderConfiguration);
 }
