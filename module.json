@@ -6,12 +6,8 @@
   "url": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors",
   "manifest": "https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json",
   "download": "https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/archive/refs/heads/main.zip",
-  "esmodules": [
-    "scripts/module.mjs"
-  ],
-  "styles": [
-    "styles/module.css"
-  ],
+  "esmodules": ["scripts/module.mjs"],
+  "styles": ["styles/module.css"],
   "compatibility": {
     "minimum": "13",
     "maximum": "14"
