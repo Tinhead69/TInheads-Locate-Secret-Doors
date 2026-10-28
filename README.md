@@ -1,6 +1,6 @@
 # Locate Secret Doors (TEST)
 
-This is a test build for in-world validation. Foundry displays it as **Locate Secret Doors (TEST)**. The package version is `0.1.1`; its GitHub prerelease tag is `v0.1.1-test.1`. It has not been verified in a running Foundry instance.
+This is a test build for in-world validation. Foundry displays it as **Locate Secret Doors (TEST)**. The package version is `0.1.1`. Test installations download the current `main` branch; a GitHub release is not required. It has not been verified in a running Foundry instance.
 
 Find secret doors within a configurable range using an action on a D&D 5e weapon or item. Searches succeed automatically within range; there is no Perception check. Results go privately to the GM, who decides whether to reveal each door.
 
@@ -11,7 +11,7 @@ Each item has two modes:
 
 ## Install and configure
 
-After the source is pushed to `main` and the test prerelease assets are published, install the test build using this manifest URL:
+Install the test build using this manifest URL:
 
 ```text
 https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json
@@ -88,16 +88,13 @@ For a manual search using the world default range, with an Actor document in `ac
 await game.modules.get("locate-secret-doors").api.search(actor);
 ```
 
-## Publishing the test prerelease
+## Publishing test updates
 
-Push the module source, including the root `module.json`, to `main` in [Tinhead69/TInheads-Locate-Secret-Doors](https://github.com/Tinhead69/TInheads-Locate-Secret-Doors). Create a GitHub release tagged `v0.1.1-test.1`, enable **Set as a pre-release**, and upload both assets:
+Push the module source, including `module.json`, `scripts`, and `styles`, to `main` in [Tinhead69/TInheads-Locate-Secret-Doors](https://github.com/Tinhead69/TInheads-Locate-Secret-Doors).
 
-- `dist/module.json`
-- `dist/locate-secret-doors-0.1.1-test.1.zip`
+The install/update manifest uses the raw `main` URL. The download URL is `https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/archive/refs/heads/main.zip`, which GitHub generates from the source. No release asset upload is needed for this test channel.
 
-The install/update manifest is served from `main`, so it does not depend on GitHub's latest stable release selection. The download URL points to this specific test prerelease. These URLs require the source and assets to be published; changing local files does not upload them.
-
-For future test builds, increase the numeric version in `module.json` and `package.json`, update the prerelease tag and ZIP URL, rebuild, and publish the matching assets before updating the manifest on `main`. The module ID remains `locate-secret-doors`, preserving item flags and settings when upgrading from the initial build.
+For future test builds, increase the numeric version in `module.json` and `package.json` and push the matching source together. Both URLs remain unchanged. The module ID remains `locate-secret-doors`, preserving item flags and settings. Because this is a moving test channel, downloads track the current source on `main`.
 
 ## Development references
 
