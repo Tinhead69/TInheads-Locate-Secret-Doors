@@ -1,107 +1,41 @@
 # Locate Secret Doors (TEST)
 
-This is a test build for in-world validation. Foundry displays it as **Locate Secret Doors (TEST)**. The package version is `0.1.2`. Test installations download the current `main` branch; a GitHub release is not required. It has not been verified in a running Foundry instance.
+A simple Midi-QOL on-use macro: use the item, scan within 30 scene units, and ping nearby secret doors privately for the GM. Only attach it to items that grant this ability.
 
-Find secret doors within a configurable range using an action on a D&D 5e weapon or item. Searches succeed automatically within range; there is no Perception check. Results go privately to the GM, who decides whether to reveal each door.
+## Set up an item
 
-Each item has two modes:
+1. Update the module to **0.1.3** and reload the world.
+2. Create a **Script** world macro named **Locate Secret Doors**. Paste the contents of [macros/Locate Secret Doors.js](macros/Locate%20Secret%20Doors.js), or import [macros/Locate Secret Doors.json](macros/Locate%20Secret%20Doors.json). Give the relevant players permission to use it.
+3. Open the item's **Midi-QOL Macros / On Use Macros** configuration. In current Midi-QOL versions this is available through the item's header controls.
+4. Select the world macro **Locate Secret Doors** and run it at **postActiveEffects**, once per use. Select an activity-specific macro slot if you want only one activity to trigger the search.
+5. Use the item from the character sheet with its token on the scene.
 
-- **Manual:** the player uses the item's **Locate Secret Doors** activity from the character sheet.
-- **Automatic:** the module checks when the token moves, is placed, or its scene opens on the primary GM's client. Item and wall changes also trigger checks. No button press is required.
+Change `const RANGE = 30` in the macro for a different radius. Range uses the scene's units, usually feet. No custom activity type, detection panel, per-item flag, or movement automation is required. A macro attached at item level will run whenever that item's workflow reaches the selected pass; use an activity-specific slot to keep searches separate from attacks.
 
-## Install and configure
+## What happens
 
-Install the test build using this manifest URL:
+The player submits a search request. The GM's client checks secret-door wall segments within range of the token centre. Only GMs receive the result and see local pings; doors remain secret. The GM decides whether to reveal them using Foundry's normal controls.
+
+Pings appear for GMs viewing the searching token's scene. GMs on another scene still receive a private summary with the scene name and door positions. No nearby doors means a private “no secret doors in range” message and no ping.
+
+Distance is measured in two dimensions to the nearest point on each secret-door segment. Intervening walls, lighting, and elevation do not block this proximity search. An active GM is required.
+
+This replaces the earlier test build's sheet panels and automatic movement checks. Any utility activity already created in the world remains yours to use or delete; attach the Midi-QOL macro to it if desired.
+
+## Install
+
+Use this manifest URL in Foundry:
 
 ```text
 https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json
 ```
 
-For manual installation:
+The test download uses GitHub's ZIP of `main`. No release asset is required. For manual installation, extract `dist/locate-secret-doors-0.1.3-test.zip` into `Data/modules/locate-secret-doors` so `module.json` is directly inside that folder.
 
-1. Extract `dist/locate-secret-doors-0.1.2-test.zip` into `Data/modules/locate-secret-doors` in Foundry's user-data directory. The extracted `module.json` must be directly inside that folder.
-2. Restart Foundry and enable **Locate Secret Doors (TEST)** in the world's module settings.
-3. As GM, open a weapon or item sheet and select its **Activities** tab. In the **Locate Secret Doors** panel inside that tab, choose a range and mode, then click **Add Locate Secret Doors action**. The new utility activity appears in the activity list alongside existing attacks.
-4. Give the item to a character and place the character's token on a scene. Configuration also works on an item already owned by a character.
-5. In Manual mode, use its **Locate Secret Doors** activity. In Automatic mode, move the token near a secret door.
+Targets: Foundry v14 / D&D 5e 6.0.6, with Foundry v13 / D&D 5e 5.x backward compatibility. This is a test build; live validation in both environments is still required.
 
-The module adds a separate utility activity and preserves existing attack activities. On a weapon with multiple activities, choose **Locate Secret Doors** to search. An ordinary attack does not search.
+## Development
 
-Use the GM panel to change the range and mode. Automatic detection is active while the character carries the configured item; it does not require equipping or attunement. Switch to Manual to stop automatic detection.
+Run `node --test`. Tests cover range geometry, token ownership, private GM handling, local-only pings, and the Midi-QOL macro entry point. Future test updates should increase the numeric version in both manifests before publishing the matching source to `main`.
 
-## GM results
-
-An active GM with the module enabled must be connected. The primary active GM processes searches, including while viewing a different scene. Matches, distances, and wall identifiers are whispered only to GMs. Manual searches also report when no secret doors are found. The player receives a submission notification and can see their own request message.
-
-Each matching door has two GM controls:
-
-- **Show on map:** opens that scene for the GM and pans to the door.
-- **Reveal to everyone:** converts the secret door to a normal door, preserving its open/closed/locked state. Normal visibility rules still apply.
-
-Searches never reveal doors by themselves. Automatic mode reports only newly encountered doors and stays quiet when none are found. Remaining in range does not repeat a notification. Leaving and re-entering range allows another notification. Detection memory is temporary; reconnecting or changing the primary GM can repeat a result.
-
-## Range and settings
-
-Range uses the scene's units: `30` means 30 feet in a scene measured in feet, or 30 metres in a scene measured in metres. The editable default is **30**. Each item's saved range overrides the module default.
-
-Distance is measured in two dimensions from the token's centre to the nearest point of the secret-door wall segment, including the range boundary. Detection ignores intervening walls, lighting, sight, elevation, and diagonal movement rules. Movement checks the resulting position, rather than every point along the path. Only walls marked **Secret Door** are detected.
-
-World settings include the default range and an optional standalone character-sheet button. That button is off by default; enabling it adds a manual search using the world default range. Reload after changing its visibility setting.
-
-If a character has multiple tokens on the viewed scene, select exactly one before a manual search. Token-specific character sheets use their own token.
-
-## Compatibility and validation
-
-Primary target: **Foundry v14 / D&D 5e 6.0.6**. Backward target: **Foundry v13 / D&D 5e 5.x**. No external module dependency is required. The utility activity schema and use hook were checked against D&D 5e 5.2.4 and 6.0.6 sources. Both modern and legacy sheet hooks are supported.
-
-Tests use Foundry-shaped test doubles. This release has **not yet been tested inside a running Foundry instance**. The manifest intentionally has no `verified` claim. Custom sheets also require an in-world check.
-
-Run automated tests with Node.js 20 or later:
-
-```sh
-node --test
-```
-
-The optional real-browser sheet check is `node tools/verify-sheet-ui.mjs`. It requires Playwright and a Chromium browser. `PLAYWRIGHT_MODULE_PATH` and `BROWSER_EXECUTABLE` can select an existing installation. This exercises an Activities-tab fixture, including the V2 render hook, saved settings, duplicate suppression, GM-only controls, and play-mode interactivity.
-
-Before release, check in both target environments:
-
-- Configure an owned weapon, then a world item copied to a character. Confirm existing attacks still work.
-- Use Manual mode as a player, with doors just inside and outside range. Confirm only GMs see results.
-- Connect two GMs and confirm only one result is created; repeat while the primary GM views another scene.
-- In Automatic mode, enter range, stay in range, leave, and return. Confirm notification suppression and re-entry.
-- Change mode and range, reopen the scene, and test linked and unlinked tokens.
-- Use the GM map and reveal controls. Confirm a locked door stays locked.
-
-## Script API
-
-For GM setup macros, with an Item document in `item`:
-
-```js
-await game.modules.get("locate-secret-doors").api.configureItem(item, {
-  range: 30,
-  mode: "manual" // or "automatic"
-});
-```
-
-For a manual search using the world default range, with an Actor document in `actor`:
-
-```js
-await game.modules.get("locate-secret-doors").api.search(actor);
-```
-
-## Publishing test updates
-
-Push the module source, including `module.json`, `scripts`, and `styles`, to `main` in [Tinhead69/TInheads-Locate-Secret-Doors](https://github.com/Tinhead69/TInheads-Locate-Secret-Doors).
-
-The install/update manifest uses the raw `main` URL. The download URL is `https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/archive/refs/heads/main.zip`, which GitHub generates from the source. No release asset upload is needed for this test channel.
-
-For future test builds, increase the numeric version in `module.json` and `package.json` and push the matching source together. Both URLs remain unchanged. The module ID remains `locate-secret-doors`, preserving item flags and settings. Because this is a moving test channel, downloads track the current source on `main`.
-
-## Development references
-
-- [Foundry module development](https://foundryvtt.com/article/module-development/)
-- [Foundry v13 API](https://foundryvtt.com/api/v13/)
-- [Foundry v14 API](https://foundryvtt.com/api/v14/)
-- [D&D 5e 5.2.4 activity implementation](https://github.com/foundryvtt/dnd5e/blob/release-5.2.4/module/documents/activity/mixin.mjs)
-- [D&D 5e 6.0.6 activity implementation](https://github.com/foundryvtt/dnd5e/blob/release-6.0.6/module/documents/activity/mixin.mjs)
+References: [Midi-QOL macro documentation](https://gitlab.com/tposney/midi-qol/-/blob/v13/MACROS.md), [Foundry local ping API](https://foundryvtt.com/api/v14/classes/foundry.canvas.layers.ControlsLayer.html#drawping).
