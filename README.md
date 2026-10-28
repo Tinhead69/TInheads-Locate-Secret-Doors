@@ -1,4 +1,6 @@
-# Locate Secret Doors
+# Locate Secret Doors (TEST)
+
+This is a test build for in-world validation. Foundry displays it as **Locate Secret Doors (TEST)**. The package version is `0.1.1`; its GitHub prerelease tag is `v0.1.1-test.1`. It has not been verified in a running Foundry instance.
 
 Find secret doors within a configurable range using an action on a D&D 5e weapon or item. Searches succeed automatically within range; there is no Perception check. Results go privately to the GM, who decides whether to reveal each door.
 
@@ -9,16 +11,16 @@ Each item has two modes:
 
 ## Install and configure
 
-After the GitHub release is published, Foundry can install and update the module using this manifest URL:
+After the source is pushed to `main` and the test prerelease assets are published, install the test build using this manifest URL:
 
 ```text
-https://github.com/Tinhead69/TInheads-Locate-Secret-Doors/releases/latest/download/module.json
+https://raw.githubusercontent.com/Tinhead69/TInheads-Locate-Secret-Doors/main/module.json
 ```
 
 For manual installation:
 
-1. Extract `dist/locate-secret-doors-0.1.0.zip` into `Data/modules/locate-secret-doors` in Foundry's user-data directory. The extracted `module.json` must be directly inside that folder.
-2. Restart Foundry and enable **Locate Secret Doors** in the world's module settings.
+1. Extract `dist/locate-secret-doors-0.1.1-test.1.zip` into `Data/modules/locate-secret-doors` in Foundry's user-data directory. The extracted `module.json` must be directly inside that folder.
+2. Restart Foundry and enable **Locate Secret Doors (TEST)** in the world's module settings.
 3. As GM, open a weapon or item sheet. In the **Locate Secret Doors** panel, choose a range and mode, then click **Add Locate Secret Doors action**.
 4. Give the item to a character and place the character's token on a scene. Configuration also works on an item already owned by a character.
 5. In Manual mode, use its **Locate Secret Doors** activity. In Automatic mode, move the token near a secret door.
@@ -86,16 +88,16 @@ For a manual search using the world default range, with an Actor document in `ac
 await game.modules.get("locate-secret-doors").api.search(actor);
 ```
 
-## Publishing version 0.1.0
+## Publishing the test prerelease
 
-Create a GitHub release tagged `v0.1.0` in [Tinhead69/TInheads-Locate-Secret-Doors](https://github.com/Tinhead69/TInheads-Locate-Secret-Doors) and upload both release assets:
+Push the module source, including the root `module.json`, to `main` in [Tinhead69/TInheads-Locate-Secret-Doors](https://github.com/Tinhead69/TInheads-Locate-Secret-Doors). Create a GitHub release tagged `v0.1.1-test.1`, enable **Set as a pre-release**, and upload both assets:
 
 - `dist/module.json`
-- `dist/locate-secret-doors-0.1.0.zip`
+- `dist/locate-secret-doors-0.1.1-test.1.zip`
 
-The manifest uses GitHub's latest-release asset URL for updates and a version-specific ZIP URL for downloads. Both links require those assets to be published; changing the local manifest does not upload them. Mark the release as the latest release so the install manifest resolves.
+The install/update manifest is served from `main`, so it does not depend on GitHub's latest stable release selection. The download URL points to this specific test prerelease. These URLs require the source and assets to be published; changing local files does not upload them.
 
-For future releases, update the version and version-specific download URL, rebuild the ZIP, and upload the matching manifest and ZIP together.
+For future test builds, increase the numeric version in `module.json` and `package.json`, update the prerelease tag and ZIP URL, rebuild, and publish the matching assets before updating the manifest on `main`. The module ID remains `locate-secret-doors`, preserving item flags and settings when upgrading from the initial build.
 
 ## Development references
 
